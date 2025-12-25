@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Claude Code News - Auto-updating news aggregator for Claude Code, Anthropic AI, and related technology">
+    <meta name="theme-color" content="#D97706">
+    <title>Claude Code News - AI Development Updates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128240;</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon">&#9889;</div>
+                <div class="logo-text">
+                    <span class="logo-title">Claude Code News</span>
+                    <span class="logo-subtitle">AI Development Updates</span>
+                </div>
+            </a>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <span class="search-icon">&#128269;</span>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search news...">
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button id="refresh-btn" class="btn btn-primary">
+                    &#8635; Refresh
+                </button>
+                <a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener" class="btn btn-secondary">
+                    &#128187; GitHub
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div id="stats-content" class="stats-content">
+            <div class="stats-left">
+                <div class="stat-item">
+                    <span class="stat-value">-</span>
+                    <span class="stat-label">Articles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Loading...</span>
+                </div>
+            </div>
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>Connecting...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Categories</h3>
+                <nav id="category-list" class="category-list">
+                    <div class="category-item active" data-category="">
+                        <span class="category-icon">&#127760;</span>
+                        <span class="category-name">All News</span>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Quick Links</h3>
+                <nav class="category-list">
+                    <a href="https://claude.ai" target="_blank" rel="noopener" class="category-item">
+                        <span class="category-icon">&#129302;</span>
+                        <span class="category-name">Claude AI</span>
+                    </a>
+                    <a href="https://docs.anthropic.com" target="_blank" rel="noopener" class="category-item">
+                        <span class="category-icon">&#128218;</span>
+                        <span class="category-name">Documentation</span>
+                    </a>
+                    <a href="https://www.anthropic.com" target="_blank" rel="noopener" class="category-item">
+                        <span class="category-icon">&#127968;</span>
+                        <span class="category-name">Anthropic</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">About</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                    Auto-generated news feed for Claude Code and Anthropic AI developments.
+                    Updated every 6 hours with the most relevant articles from across the web.
+                </p>
+            </div>
+        </aside>
+
+        <!-- News Content -->
+        <div class="news-content">
+            <!-- Featured Section -->
+            <section class="featured-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-title-icon">&#128293;</span>
+                        Featured Stories
+                    </h2>
+                </div>
+                <div id="featured-container" class="featured-grid">
+                    <div class="loading" style="grid-column: 1 / -1;">
+                        <div class="loading-spinner"></div>
+                        <p>Loading featured stories...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Latest News Section -->
+            <section class="news-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-title-icon">&#128240;</span>
+                        Latest News
+                    </h2>
+                </div>
+                <div id="news-grid" class="news-grid">
+                    <div class="loading" style="grid-column: 1 / -1;">
+                        <div class="loading-spinner"></div>
+                        <p>Loading news...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination" class="pagination"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">
+                &#9889; Claude Code News &mdash; Auto-updating news aggregator
+            </p>
+            <div class="footer-links">
+                <a href="https://github.com/anthropics/claude-code" target="_blank" rel="noopener" class="footer-link">Claude Code</a>
+                <a href="https://www.anthropic.com" target="_blank" rel="noopener" class="footer-link">Anthropic</a>
+                <a href="https://claude.ai" target="_blank" rel="noopener" class="footer-link">Claude AI</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
