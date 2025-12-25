@@ -93,24 +93,7 @@ const NEWS_SOURCES = {
         }
     ],
     web: [
-        {
-            name: 'Anthropic Blog',
-            url: 'https://www.anthropic.com/news',
-            category: 'official',
-            selector: 'article, .post, .news-item, [class*="post"], [class*="article"]'
-        },
-        {
-            name: 'GitHub Claude Code',
-            url: 'https://github.com/anthropics/claude-code/releases',
-            category: 'releases',
-            type: 'github-releases'
-        },
-        {
-            name: 'GitHub Anthropic',
-            url: 'https://github.com/anthropics',
-            category: 'releases',
-            type: 'github-org'
-        }
+        // Removed broken scrapers - using RSS feeds only for clean data
     ]
 };
 
@@ -278,13 +261,17 @@ class NewsAggregator {
         return repos.slice(0, 5);
     }
 
-    // Clean text
+    // Clean text - remove garbage and limit length
     cleanText(text) {
+        if (!text) return '';
         return text
-            .replace(/\s+/g, ' ')
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .replace(/&[a-z]+;/gi, ' ') // Remove HTML entities
+            .replace(/https?:\/\/[^\s]+/g, '') // Remove URLs
+            .replace(/\s+/g, ' ') // Collapse whitespace
             .replace(/\n/g, ' ')
             .trim()
-            .slice(0, 500);
+            .slice(0, 300); // Shorter limit for cleaner cards
     }
 
     // Generate unique ID

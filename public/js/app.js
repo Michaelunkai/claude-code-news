@@ -15,9 +15,10 @@ class NewsApp {
 
     async init() {
         this.bindEvents();
+        // Load stats first, then categories (which need stats for counts)
+        await this.loadStats();
         await Promise.all([
             this.loadCategories(),
-            this.loadStats(),
             this.loadFeatured(),
             this.loadNews()
         ]);
