@@ -27,7 +27,7 @@ class Scheduler {
         console.log('[Scheduler] Started - will fetch news every 6 hours');
     }
 
-    // Manual fetch trigger
+    // Manual fetch trigger - returns { total, newCount, newArticles }
     async runFetch() {
         if (this.isRunning) {
             console.log('[Scheduler] Fetch already in progress, skipping...');
@@ -38,12 +38,12 @@ class Scheduler {
         console.log('[Scheduler] Running scheduled news fetch...');
 
         try {
-            await newsAggregator.fetchAllNews();
-            console.log('[Scheduler] Fetch completed successfully');
-            return true;
+            const result = await newsAggregator.fetchAllNews();
+            console.log(`[Scheduler] Fetch completed - ${result.newCount} new articles found`);
+            return result;
         } catch (error) {
             console.error('[Scheduler] Fetch error:', error.message);
-            return false;
+            return { total: 0, newCount: 0, newArticles: [], error: error.message };
         } finally {
             this.isRunning = false;
         }

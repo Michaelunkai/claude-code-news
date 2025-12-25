@@ -69,14 +69,25 @@ router.get('/stats', (req, res) => {
     }
 });
 
-// Trigger manual refresh
+// Trigger manual refresh - returns count of NEW articles found
 router.post('/refresh', async (req, res) => {
     try {
-        const success = await scheduler.runFetch();
-        res.json({
-            success,
-            message: success ? 'News refresh completed' : 'Refresh already in progress'
-        });
+        const result = await scheduler.runFetch();
+        if (result === false) {
+            res.json({
+                success: false,
+                message: 'Refresh already in progress'
+            });
+        } else {
+            res.json({
+                success: true,
+                message: result.newCount > 0
+                    ? `Found ${result.newCount} NEW articles!`
+                    : 'No new articles found - check back later',
+                newCount: result.newCount || 0,
+                totalArticles: result.total || 0
+            });
+        }
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

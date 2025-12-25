@@ -125,6 +125,7 @@ const RELEVANCE_KEYWORDS = {
 class NewsAggregator {
     constructor() {
         this.news = [];
+        this.seenIds = new Set(); // Track all seen article IDs to avoid duplicates
         this.lastFetch = null;
     }
 
@@ -308,7 +309,7 @@ class NewsAggregator {
         return match ? match[1] : null;
     }
 
-    // Main fetch function
+    // Main fetch function - ONLY adds NEW articles not seen before
     async fetchAllNews() {
         console.log('[NewsAggregator] Starting news fetch...');
         const startTime = Date.now();
@@ -337,22 +338,39 @@ class NewsAggregator {
         // Filter by relevance and deduplicate
         const filtered = this.filterAndDedupe(allNews);
 
-        // Sort by relevance and date
-        filtered.sort((a, b) => {
-            if (b.relevance !== a.relevance) return b.relevance - a.relevance;
-            return new Date(b.pubDate) - new Date(a.pubDate);
-        });
+        // Find ONLY NEW articles (not in seenIds)
+        const newArticles = [];
+        for (const article of filtered) {
+            const titleKey = article.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60);
+            if (!this.seenIds.has(article.id) && !this.seenIds.has(titleKey)) {
+                this.seenIds.add(article.id);
+                this.seenIds.add(titleKey);
+                article.isNew = true;
+                article.fetchedAt = new Date().toISOString();
+                newArticles.push(article);
+            }
+        }
 
-        this.news = filtered;
+        // Prepend new articles to existing ones (newest first)
+        if (newArticles.length > 0) {
+            this.news = [...newArticles, ...this.news];
+            console.log(`[NewsAggregator] Found ${newArticles.length} NEW articles!`);
+        } else {
+            console.log('[NewsAggregator] No new articles found this refresh');
+        }
+
+        // Sort by date (newest first)
+        this.news.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
         this.lastFetch = new Date().toISOString();
 
         // Save to file
         await this.saveToFile();
 
         const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-        console.log(`[NewsAggregator] Fetched ${filtered.length} articles in ${elapsed}s`);
+        console.log(`[NewsAggregator] Refresh complete in ${elapsed}s. Total: ${this.news.length}, New: ${newArticles.length}`);
 
-        return filtered;
+        return { total: this.news.length, newCount: newArticles.length, newArticles };
     }
 
     // Filter by relevance and remove duplicates
@@ -375,30 +393,45 @@ class NewsAggregator {
         return unique;
     }
 
-    // Save to JSON file
+    // Save to JSON file (includes seenIds for persistence)
     async saveToFile() {
         const data = {
             lastUpdated: this.lastFetch,
             count: this.news.length,
+            seenIds: Array.from(this.seenIds), // Persist seen IDs
             articles: this.news
         };
 
         try {
             fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-            console.log(`[NewsAggregator] Saved ${this.news.length} articles to disk`);
+            console.log(`[NewsAggregator] Saved ${this.news.length} articles, ${this.seenIds.size} seen IDs to disk`);
         } catch (error) {
             console.error('[NewsAggregator] Save error:', error.message);
         }
     }
 
-    // Load from file
+    // Load from file (restores seenIds)
     loadFromFile() {
         try {
             if (fs.existsSync(DATA_FILE)) {
                 const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
                 this.news = data.articles || [];
                 this.lastFetch = data.lastUpdated;
-                console.log(`[NewsAggregator] Loaded ${this.news.length} articles from disk`);
+
+                // Restore seenIds from file OR rebuild from existing articles
+                if (data.seenIds && Array.isArray(data.seenIds)) {
+                    this.seenIds = new Set(data.seenIds);
+                } else {
+                    // Rebuild seenIds from existing articles
+                    this.seenIds = new Set();
+                    for (const article of this.news) {
+                        this.seenIds.add(article.id);
+                        const titleKey = article.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60);
+                        this.seenIds.add(titleKey);
+                    }
+                }
+
+                console.log(`[NewsAggregator] Loaded ${this.news.length} articles, ${this.seenIds.size} seen IDs from disk`);
                 return true;
             }
         } catch (error) {

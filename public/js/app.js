@@ -106,10 +106,19 @@ class NewsApp {
         const btn = document.getElementById('refresh-btn');
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Refreshing...';
+            btn.innerHTML = '<span class="spinner"></span> Scanning for new articles...';
         }
 
-        await this.fetchAPI('/refresh');
+        const result = await this.fetchAPI('/refresh');
+
+        // Show result message
+        if (result && result.success) {
+            if (btn) {
+                btn.innerHTML = result.newCount > 0
+                    ? `&#10003; Found ${result.newCount} NEW!`
+                    : '&#10003; No new articles';
+            }
+        }
 
         setTimeout(async () => {
             await Promise.all([
@@ -121,7 +130,7 @@ class NewsApp {
                 btn.disabled = false;
                 btn.innerHTML = '&#8635; Refresh';
             }
-        }, 2000);
+        }, 2500);
     }
 
     setCategory(category) {
